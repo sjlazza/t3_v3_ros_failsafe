@@ -1,0 +1,20 @@
+http://www.devicemart.co.kr/1327414
+
+reference code(arduino)==============
+#include
+
+int val1;
+int val2;
+
+void setup(){
+	Serial.begin(9600);
+}
+
+void loop(){
+	float temp;
+	val1=analogRead(1);
+	temp=val1/4.092;
+	val1=(int)temp;
+
+	val2=((val1 100%)/10);
+}

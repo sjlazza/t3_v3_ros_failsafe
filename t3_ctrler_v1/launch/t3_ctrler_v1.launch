@@ -1,0 +1,11 @@
+<launch>
+	<include file="$(find microstrain_3dm_gx5_45)/launch/microstrain_25.launch"/>
+	<include file="$(find dynamixel_workbench_controllers)/launch/dynamixel_controllers.launch"/>
+
+	<node name="ros_arduino_communicator"	pkg="rosserial_arduino"	type="serial_node.py"	output="screen">
+	<param name="port"	type="string"	value="/dev/arduino"/>
+	<param name="baud"	type="int"	value="57600"/>
+	</node>
+
+	<node pkg="t3_ctrler_v1" type="t3_ctrler" name="t3_controller" output="screen"/>
+</launch>

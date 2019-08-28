@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/admin/catkin_ws/devel/include/**",
+                "/opt/ros/kinetic/include/**",
+                "/home/admin/catkin_ws/src/microstrain_3dm_gx5_45/include/**",
+                "/home/admin/catkin_ws/src/rosserial/rosserial_server/include/**",
+                "/home/admin/catkin_ws/src/rosserial/rosserial_test/include/**",
+                "/home/admin/catkin_ws/src/serial/include/**",
+                "/home/admin/catkin_ws/src/t3_ctrler_v1/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
