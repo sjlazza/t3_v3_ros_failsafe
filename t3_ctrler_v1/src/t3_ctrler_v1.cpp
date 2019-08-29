@@ -25,6 +25,7 @@
 //VICON Availability======================================
 
 int vicon=0;		//Vicon on? - yes:1, no:0
+//future work: make code for working both vicon and non-vicon env.
 //--------------------------------------------------------
 
 //About time==============================================
@@ -134,7 +135,7 @@ double y_d_tangent=0;	//yaw increment tangent
 double T_d=0;			//desired thrust
 //--------------------------------------------------------
 
-//T3_V2_parameters========================================
+//T3_V3_parameters========================================
 
 //General dimensions
 static double l_arm=0.1;		//(m), TP arm length
@@ -176,10 +177,10 @@ static double  z_limit=2;			//(m)
 void rc_receiveCallback(const std_msgs::Int16MultiArray::ConstPtr &array);
 void imu_updateCallback(const sensor_msgs::Imu::ConstPtr &imu);
 void imu_nav_updateCallback(const sensor_msgs::Imu::ConstPtr &imu);
+sensor_msgs::JointState servo_msg_create(double t_r_s, double t_p_s);
 void vicon_pos_updateCallback(const geometry_msgs::Vector3::ConstPtr &pos);
 void vicon_vel_updateCallback(const geometry_msgs::Vector3::ConstPtr &vel);
 void vicon_att_updateCallback(const geometry_msgs::Vector3::ConstPtr &att);
-sensor_msgs::JointState servo_msg_create(double t_r_s, double t_p_s);
 void ud_to_PWMs(double tau_r_des, double tau_p_des, double tau_y_des, double Thrust_des);
 double Force_to_PWM(double F);
 void rpyT_ctrl_manual(double roll_d, double pitch_d, double yaw_d, double Thrust_d);
@@ -309,7 +310,7 @@ int main(int argc, char **argv){
 		start=std::chrono::high_resolution_clock::now();
 
 		//Kill Mode
-		if(arr[5]<1300){
+		if(arr[6]<1300){
 			flag_imu=0;
 			vicon_pos_bias_capture_flag=0;
 
@@ -322,7 +323,7 @@ int main(int argc, char **argv){
 			theta_p_s=0;			
 		
 		//Manual Control Mode
-		}else if(arr[5]<1700 && arr[5]>1300){
+		}else if(arr[6]<1700 && arr[6]>1300){
 			//Initialize desired yaw
 			if(flag_imu!=1){
 				y_d=vicon_att.z;//initial desired yaw setting
@@ -466,7 +467,7 @@ int main(int argc, char **argv){
 
 		//Publish data
 		PWMs.publish(PWMs_cmd);
-		servo_angle.publish(servo_msg_create(theta_r_s, theta_p_s));
+		servo_angle.publish(servo_msg_create(r_d,p_d));
 		rpyT_cmd_log.publish(rpyT_cmd);
 		xyz_cmd_log.publish(xyz_cmd);
 
@@ -620,7 +621,7 @@ void vicon_att_updateCallback(const geometry_msgs::Vector3::ConstPtr &att){
 }
 
 sensor_msgs::JointState servo_msg_create(double t_r_s, double t_p_s){
-
+	
 	sensor_msgs::JointState servo_msg;
 
 	servo_msg.name.resize(2);

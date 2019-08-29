@@ -33,6 +33,7 @@
 
 // Loop Frequency : around around 145 kHz
 // Generated PWM Frequency : 455.846 Hz
+static double F_pwm = 500;
 
 // For ROS==============================================================================
 #define USE_USBCON //use the following line if you have an arduino w. native port
@@ -180,15 +181,11 @@ void writePWM_Odroid(const std_msgs::Int16MultiArray &cmd_msg) {
   u4 = constrain( u4, 1000, 2000 );
 
   //Kill UAV================================================================================
-  if ( unMSIn < 1500 ) {
-    writePWM_Kill();
-  }
+  if ( unMSIn < 1500 ) writePWM_Kill();
   //----------------------------------------------------------------------------------------
 
   //Under Odroid's command==================================================================
-  else {
-    writePWM(u1, u2, u3, u4);
-  }
+  else writePWM(u1, u2, u3, u4);
   //----------------------------------------------------------------------------------------
 }
 
@@ -200,10 +197,10 @@ void writePWM(int ua1, int ua2, int ua3, int ua4) {
   ua4 = constrain( ua4, 1000, 2000 );
 
   //Write PWM Values to motor=============================================================
-  analogWrite(PROP_ONE_OUT_PIN, ua1 * 1.866891 + 0.868104);
-  analogWrite(PROP_TWO_OUT_PIN, ua2 * 1.866891 + 0.868104);
-  analogWrite(PROP_THR_OUT_PIN, ua3 * 1.866891 + 0.868104);
-  analogWrite(PROP_FOU_OUT_PIN, ua4 * 1.866891 + 0.868104);
+  analogWrite(PROP_ONE_OUT_PIN, (int)(ua1 * F_pwm * (double)0.004096));
+  analogWrite(PROP_TWO_OUT_PIN, (int)(ua2 * F_pwm * (double)0.004096));
+  analogWrite(PROP_THR_OUT_PIN, (int)(ua3 * F_pwm * (double)0.004096));
+  analogWrite(PROP_FOU_OUT_PIN, (int)(ua4 * F_pwm * (double)0.004096));
   //--------------------------------------------------------------------------------------
 }
 //------------------------------------------------------------------------------------------
@@ -304,7 +301,7 @@ void setup() {
   nh.advertise(RC_readings);
   nh.subscribe(PWMs);
 
-  int RC_data_size=9;
+  int RC_data_size = 9;
 
   RC.layout.dim = (std_msgs::MultiArrayDimension *)
                   malloc(sizeof(std_msgs::MultiArrayDimension) * 2);
@@ -346,6 +343,10 @@ void setup() {
 }
 
 void loop() {
+  //Kill UAV================================================================================
+  if ( unMSIn < 1500 ) writePWM_Kill();
+  //----------------------------------------------------------------------------------------
+
   //Update RCinput====================================================================
   if (bUpdateFlagsShared) {
     noInterrupts();
@@ -393,7 +394,7 @@ void loop() {
     //----------------------------------------------------------------------------------------
 
     //Voltage Measurement=====================================================================
-    voltage = analogRead(BATT_V_PIN)/2.50;//divider value is set heuristically
+    voltage = analogRead(BATT_V_PIN) / 2.50; //divider value is set heuristically
     //ref: http://shopping.interpark.com/product/productInfo.do?prdNo=6225508308&gclid=CjwKCAjwzJjrBRBvEiwA867bymuQbcY3ltYbQgD4HvxVbC845K4BIXtkXYBwLmLa2C2ijXE5ZtIRMRoC8r8QAvD_BwE
     //----------------------------------------------------------------------------------------
 
