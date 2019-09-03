@@ -4,8 +4,9 @@
 
 	<node name="ros_arduino_communicator"	pkg="rosserial_arduino"	type="serial_node.py"	output="screen">
 	<param name="port"	type="string"	value="/dev/arduino"/>
-	<param name="baud"	type="int"	value="57600"/>
+	<param name="baud"	type="int"	value="115200"/>
 	</node>
 
         <node pkg="t3_ctrler_v1" type="t3_ctrler" name="t3_controller" output="screen"/>
+	<node pkg="serial_example" type="serial_example_node" name="serial" output="screen"/>
 </launch>

@@ -72,10 +72,10 @@ ros::Publisher RC_readings("RC_readings", &RC);
 //-------------------------------------------------------------------------------------
 
 // Assign channel out pins=============================================================
-#define PROP_ONE_OUT_PIN 7
-#define PROP_TWO_OUT_PIN 6
+#define PROP_ONE_OUT_PIN 3
+#define PROP_TWO_OUT_PIN 4
 #define PROP_THR_OUT_PIN 5
-#define PROP_FOU_OUT_PIN 4
+#define PROP_FOU_OUT_PIN 2
 //-------------------------------------------------------------------------------------
 
 //Flags===============================================================
@@ -161,11 +161,6 @@ void writePWM_Kill() {
   u3 = 1000;
   u4 = 1000;
 
-  u1 = constrain( u1, 1000, 2000 );
-  u2 = constrain( u2, 1000, 2000 );
-  u3 = constrain( u3, 1000, 2000 );
-  u4 = constrain( u4, 1000, 2000 );
-
   writePWM(u1, u2, u3, u4);
 }
 
@@ -179,14 +174,6 @@ void writePWM_Odroid(const std_msgs::Int16MultiArray &cmd_msg) {
   u2 = constrain( u2, 1000, 2000 );
   u3 = constrain( u3, 1000, 2000 );
   u4 = constrain( u4, 1000, 2000 );
-
-  //Kill UAV================================================================================
-  if ( unMSIn < 1500 ) writePWM_Kill();
-  //----------------------------------------------------------------------------------------
-
-  //Under Odroid's command==================================================================
-  else writePWM(u1, u2, u3, u4);
-  //----------------------------------------------------------------------------------------
 }
 
 void writePWM(int ua1, int ua2, int ua3, int ua4) {
@@ -294,13 +281,14 @@ ros::Subscriber<std_msgs::Int16MultiArray> PWMs("PWMs", writePWM_Odroid);
 //------------------------------------------------------------------------------------------
 
 void setup() {
-  Serial.begin(57600);
+  int baud = 115200; // refer to change the baudrate: https://answers.ros.org/question/206972/baud-rate-parameter-in-rosserial_python-arduino/
+  Serial.begin(baud);
 
   // For ROS========================================================================
   nh.initNode();
   nh.advertise(RC_readings);
   nh.subscribe(PWMs);
-
+  nh.getHardware()->setBaud(baud);
   int RC_data_size = 9;
 
   RC.layout.dim = (std_msgs::MultiArrayDimension *)
@@ -343,9 +331,13 @@ void setup() {
 }
 
 void loop() {
-  //Kill UAV================================================================================
-  if ( unMSIn < 1500 ) writePWM_Kill();
-  //----------------------------------------------------------------------------------------
+  //Write Motor Control PWM===========================================================
+  if ( unMSIn < 1500 ) {
+    writePWM_Kill(); //Kill UAV
+  }  else {
+    writePWM(u1, u2, u3, u4);       //Write PWM
+  }
+  //----------------------------------------------------------------------------------
 
   //Update RCinput====================================================================
   if (bUpdateFlagsShared) {
@@ -433,5 +425,5 @@ void loop() {
   //}
   //----------------------------------------------------------------------------------------
 
-  //  delay(2);
+  delay(1);
 }

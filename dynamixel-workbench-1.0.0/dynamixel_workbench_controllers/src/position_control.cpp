@@ -42,8 +42,12 @@ PositionControl::PositionControl()
 
   initMsg();
 
-  for (int index = 0; index < dxl_cnt_; index++)
+  for (int index = 0; index < dxl_cnt_; index++){
     dxl_wb_->jointMode(dxl_id_[index], profile_velocity, profile_acceleration);
+    dxl_wb_->itemWrite(dxl_id_[index], "Position_P_Gain", 500);
+    dxl_wb_->itemWrite(dxl_id_[index], "Position_I_Gain", 100);
+    dxl_wb_->itemWrite(dxl_id_[index], "Position_D_Gain", 0);
+  }
 
   dxl_wb_->addSyncWrite("Goal_Position");
 
